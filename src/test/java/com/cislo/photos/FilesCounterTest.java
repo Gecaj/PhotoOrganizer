@@ -18,7 +18,7 @@ public class FilesCounterTest {
         // given
         Path directory = Paths.get("src/test/resources/photos");
         // when
-        int filesCount = FilesCounter.INSTANCE.getFilesCount(directory);
+        int filesCount = FilesCounter.getFilesCount(directory);
         // then
         assertThat(filesCount).isEqualTo(3);
     }

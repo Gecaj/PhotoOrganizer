@@ -25,7 +25,7 @@ public class PhotoOrganizer {
 
     public void moveFilesToNewLocation(Path sourceDirectory, Path newLocation) throws IOException {
         createOutputDirectory(newLocation);
-        logger.info("Number of files to move: {}", FilesCounter.INSTANCE.getFilesCount(sourceDirectory));
+        logger.info("Number of files to move: {}", FilesCounter.getFilesCount(sourceDirectory));
         Files.walkFileTree(sourceDirectory, new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {

@@ -7,24 +7,27 @@ import java.nio.file.attribute.BasicFileAttributes;
 /**
  * Created by jcislo on 12/7/17.
  */
-public class FilesCounter extends SimpleFileVisitor<Path> {
-    private int filesCount = 0;
+public class FilesCounter {
 
-    private FilesCounter() {}
-
-    public static final FilesCounter INSTANCE = new FilesCounter();
-
-    @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        if (attrs.isRegularFile()) {
-            filesCount++;
-        }
-        return FileVisitResult.CONTINUE;
+    public static int getFilesCount(Path rootDirectory) throws IOException {
+        FilesCounterVisitor visitor = new FilesCounterVisitor();
+        Files.walkFileTree(rootDirectory, visitor);
+        return visitor.getFilesCount();
     }
 
-    public synchronized int getFilesCount(Path rootDirectory) throws IOException {
-        filesCount = 0;
-        Files.walkFileTree(rootDirectory, this);
-        return filesCount;
+    private static class FilesCounterVisitor extends SimpleFileVisitor<Path> {
+        private int filesCount = 0;
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (attrs.isRegularFile()) {
+                filesCount++;
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        public int getFilesCount() {
+            return filesCount;
+        }
     }
 }
