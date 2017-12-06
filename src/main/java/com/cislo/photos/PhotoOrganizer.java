@@ -35,6 +35,8 @@ public class PhotoOrganizer {
                 return FileVisitResult.CONTINUE;
             }
         });
+        logger.info("Number of files moved: {}", movedPhotos);
+        logger.info("Failed to move files: {}", failedFileNames);
     }
 
     public void moveFileToNewLocation(Path file, Path newLocation) throws IOException {
