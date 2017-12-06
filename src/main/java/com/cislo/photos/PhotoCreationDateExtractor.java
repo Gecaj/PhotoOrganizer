@@ -33,7 +33,7 @@ public class PhotoCreationDateExtractor {
             return Optional.of(ImageMetadataReader.readMetadata(file));
         } catch (ImageProcessingException | IOException e) {
             logger.info("Failed to read metadata of file: {}", file.getName());
-            logger.error(e.getMessage());
+            e.printStackTrace();
             return Optional.empty();
         }
     }

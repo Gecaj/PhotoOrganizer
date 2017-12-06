@@ -1,5 +1,8 @@
 package com.cislo.photos;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -15,11 +18,14 @@ import java.util.Optional;
  */
 public class PhotoOrganizer {
 
+    private Logger logger = LoggerFactory.getLogger(PhotoOrganizer.class);
+
     private int movedPhotos = 0;
     private List<String> failedFileNames = new LinkedList<>();
 
     public void moveFilesToNewLocation(Path sourceDirectory, Path newLocation) throws IOException {
         createOutputDirectory(newLocation);
+        logger.info("Number of files to move: {}", FilesCounter.INSTANCE.getFilesCount(sourceDirectory));
         Files.walkFileTree(sourceDirectory, new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
