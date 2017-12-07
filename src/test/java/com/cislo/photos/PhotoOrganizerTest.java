@@ -18,45 +18,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class PhotoOrganizerTest {
 
     private final PhotoOrganizer fileOrganizer = new PhotoOrganizer();
-    private String firstFile = "src/test/resources/photos/photo1.JPG";
     private Path newLocation = Paths.get("src/test/resources/output").toAbsolutePath();
 
     @Test
-    public void shouldCreateNewLocation() throws IOException {
-        // given
-        Path file = Paths.get(firstFile).toAbsolutePath();
-
-        // when
-        fileOrganizer.moveFileToNewLocation(file, newLocation);
-
-        // then
-        assertThat(newLocation.toFile().exists()).isTrue();
-        assertThat(newLocation.toFile().isDirectory()).isTrue();
-    }
-
-    @Test
-    public void shouldMoveFileToProperLocation() throws IOException {
-        // given
-        Path file = Paths.get(firstFile).toAbsolutePath();
-        Path expectedDirectory = newLocation.resolve(Paths.get("2016/Sierpień/"));
-        Path expectedLocation = expectedDirectory.resolve("photo1.JPG");
-
-        // when
-        fileOrganizer.moveFileToNewLocation(file, newLocation);
-
-        // then
-        assertThat(expectedDirectory.toFile().exists()).isTrue();
-        assertThat(expectedLocation.toFile().exists()).isTrue();
-        assertThat(expectedLocation.toFile().isFile()).isTrue();
-    }
-
-    @Test
-    public void shouldMoveAllFilesInDirectoryToProperLocation() throws IOException {
+    public void shouldCopyAllFilesInDirectoryToProperLocation() throws IOException {
         // given
         Path sourceDirectory = Paths.get("src/test/resources/photos/").toAbsolutePath();
 
         // when
-        fileOrganizer.moveFilesToNewLocation(sourceDirectory, newLocation);
+        fileOrganizer.copyFilesToNewLocation(sourceDirectory, newLocation);
 
         // then
         assertThat(newLocation.toFile()).exists();

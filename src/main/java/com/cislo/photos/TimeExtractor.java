@@ -26,12 +26,12 @@ public class TimeExtractor {
         INT_TO_MONTH.put(12, "Grudzień");
     }
 
-    public String readCreationMonth(LocalDateTime creationTime) {
+    public static String readCreationMonth(LocalDateTime creationTime) {
         int month = creationTime.get(ChronoField.MONTH_OF_YEAR);
         return INT_TO_MONTH.get(month);
     }
 
-    public String readCreationYear(LocalDateTime creationTime) {
+    public static String readCreationYear(LocalDateTime creationTime) {
         return String.valueOf(creationTime.get(ChronoField.YEAR));
     }
 }

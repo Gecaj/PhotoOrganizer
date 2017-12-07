@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -23,14 +21,14 @@ public class PhotoOrganizer {
     private int movedPhotos = 0;
     private List<String> failedFileNames = new LinkedList<>();
 
-    public void moveFilesToNewLocation(Path sourceDirectory, Path newLocation) throws IOException {
-        createOutputDirectory(newLocation);
+    public void copyFilesToNewLocation(Path sourceDirectory, Path targetRootDirectory) throws IOException {
+        createOutputDirectory(targetRootDirectory);
         logger.info("Number of files to move: {}", FilesCounter.getFilesCount(sourceDirectory));
         Files.walkFileTree(sourceDirectory, new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 if (attrs.isRegularFile()) {
-                    moveFileToNewLocation(file, newLocation);
+                    copyFileToNewLocation(file, targetRootDirectory);
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -39,19 +37,22 @@ public class PhotoOrganizer {
         logger.info("Failed to move files: {}", failedFileNames);
     }
 
-    public void moveFileToNewLocation(Path file, Path newLocation) throws IOException {
-        createOutputDirectory(newLocation);
-        TimeExtractor timeExtractor = new TimeExtractor();
+    public int getMovedPhotos() {
+        return movedPhotos;
+    }
+
+    public List<String> getFailedFileNames() {
+        return failedFileNames;
+    }
+
+    private void copyFileToNewLocation(Path file, Path targetRootDirectory) throws IOException {
+        createOutputDirectory(targetRootDirectory);
         Optional<LocalDateTime> creationTimeOptional = new PhotoCreationDateExtractor().readCreationTime(file.toFile());
         if (creationTimeOptional.isPresent()) {
-            LocalDateTime creationTime = creationTimeOptional.get();
-            Path yearDirectory = Paths.get(timeExtractor.readCreationYear(creationTime));
-            createOutputDirectory(newLocation.resolve(yearDirectory));
-            Path monthDirectory = Paths.get(timeExtractor.readCreationMonth(creationTime));
-            Path outputLocation = newLocation.resolve(yearDirectory).resolve(monthDirectory);
-            createOutputDirectory(outputLocation);
-            Path newFileLocation = outputLocation.resolve(file.getFileName());
-            newFileLocation.toFile().createNewFile();
+            Path yearDirectory = createYearDirectory(targetRootDirectory, creationTimeOptional);
+            Path monthDirectory = Paths.get(TimeExtractor.readCreationMonth(creationTimeOptional.get()));
+            Path outputDirectory = createOutputDirectory(targetRootDirectory, yearDirectory, monthDirectory);
+            Path newFileLocation = outputDirectory.resolve(file.getFileName());
             Files.copy(file, newFileLocation, StandardCopyOption.REPLACE_EXISTING);
             movedPhotos++;
         } else {
@@ -59,12 +60,16 @@ public class PhotoOrganizer {
         }
     }
 
-    public int getMovedPhotos() {
-        return movedPhotos;
+    private Path createOutputDirectory(Path targetDirectory, Path yearDirectory, Path monthDirectory) {
+        Path outputLocation = targetDirectory.resolve(yearDirectory).resolve(monthDirectory);
+        createOutputDirectory(outputLocation);
+        return outputLocation;
     }
 
-    public List<String> getFailedFileNames() {
-        return failedFileNames;
+    private Path createYearDirectory(Path targetDirectory, Optional<LocalDateTime> creationTimeOptional) {
+        Path yearDirectory = Paths.get(TimeExtractor.readCreationYear(creationTimeOptional.get()));
+        createOutputDirectory(targetDirectory.resolve(yearDirectory));
+        return yearDirectory;
     }
 
     private void createOutputDirectory(Path newLocation) {

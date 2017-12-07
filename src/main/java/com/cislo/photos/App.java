@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class App extends JPanel implements ActionListener {
 
@@ -44,7 +43,7 @@ public class App extends JPanel implements ActionListener {
         Object source = e.getSource();
         if (source == actionButton) {
             PhotoOrganizer photoOrganizer = new PhotoOrganizer();
-            tryMoveFilesToNewLocation(photoOrganizer);
+            tryCopyFilesToNewLocation(photoOrganizer);
             JOptionPane.showMessageDialog(frame, String.format(infoMessage, photoOrganizer.getMovedPhotos(),
                     photoOrganizer.getFailedFileNames()));
         } else {
@@ -59,11 +58,11 @@ public class App extends JPanel implements ActionListener {
         }
     }
 
-    private void tryMoveFilesToNewLocation(PhotoOrganizer photoOrganizer) {
+    private void tryCopyFilesToNewLocation(PhotoOrganizer photoOrganizer) {
         try {
             System.out.println("sourcePath = " + sourcePath);
             System.out.println("targetPath = " + targetPath);
-            photoOrganizer.moveFilesToNewLocation(sourcePath, targetPath);
+            photoOrganizer.copyFilesToNewLocation(sourcePath, targetPath);
         } catch (IOException e1) {
             e1.printStackTrace();
             System.exit(1);
