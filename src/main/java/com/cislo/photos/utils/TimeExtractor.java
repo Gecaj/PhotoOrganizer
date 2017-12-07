@@ -1,4 +1,4 @@
-package com.cislo.photos;
+package com.cislo.photos.utils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;

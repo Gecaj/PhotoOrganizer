@@ -1,5 +1,6 @@
 package com.cislo.photos;
 
+import com.cislo.photos.utils.PhotoCreationDateExtractor;
 import com.drew.imaging.ImageProcessingException;
 import org.junit.Test;
 
@@ -20,11 +21,10 @@ public class PhotoCreationDateExtractorTest {
     @Test
     public void shouldReadPhotoCreationDateCorrectly() throws IOException, ImageProcessingException {
         // given
-        PhotoCreationDateExtractor dateExtractor = new PhotoCreationDateExtractor();
         Path path = Paths.get("src/test/resources/photos/photo1.JPG");
 
         // when
-        Optional<LocalDateTime> localDateTime = dateExtractor.readCreationTime(path.toFile());
+        Optional<LocalDateTime> localDateTime = PhotoCreationDateExtractor.readCreationTime(path.toFile());
 
         // then
         assertThat(localDateTime).isPresent();

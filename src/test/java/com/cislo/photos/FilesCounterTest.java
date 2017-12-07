@@ -1,5 +1,6 @@
 package com.cislo.photos;
 
+import com.cislo.photos.utils.FilesCounter;
 import org.junit.Test;
 
 import java.io.IOException;

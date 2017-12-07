@@ -1,5 +1,6 @@
 package com.cislo.photos;
 
+import com.cislo.photos.utils.TimeExtractor;
 import org.junit.Test;
 
 import java.time.LocalDateTime;

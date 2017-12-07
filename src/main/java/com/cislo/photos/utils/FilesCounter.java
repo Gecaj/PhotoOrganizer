@@ -1,4 +1,4 @@
-package com.cislo.photos;
+package com.cislo.photos.utils;
 
 import java.io.IOException;
 import java.nio.file.*;

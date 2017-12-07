@@ -1,5 +1,8 @@
 package com.cislo.photos;
 
+import com.cislo.photos.utils.FilesCounter;
+import com.cislo.photos.utils.PhotoCreationDateExtractor;
+import com.cislo.photos.utils.TimeExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +50,7 @@ public class PhotoOrganizer {
 
     private void copyFileToNewLocation(Path file, Path targetRootDirectory) throws IOException {
         createOutputDirectory(targetRootDirectory);
-        Optional<LocalDateTime> creationTimeOptional = new PhotoCreationDateExtractor().readCreationTime(file.toFile());
+        Optional<LocalDateTime> creationTimeOptional = PhotoCreationDateExtractor.readCreationTime(file.toFile());
         if (creationTimeOptional.isPresent()) {
             Path yearDirectory = createYearDirectory(targetRootDirectory, creationTimeOptional);
             Path monthDirectory = Paths.get(TimeExtractor.readCreationMonth(creationTimeOptional.get()));

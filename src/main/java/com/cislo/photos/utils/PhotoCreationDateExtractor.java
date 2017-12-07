@@ -1,4 +1,4 @@
-package com.cislo.photos;
+package com.cislo.photos.utils;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -19,16 +19,16 @@ import java.util.Optional;
  */
 public class PhotoCreationDateExtractor {
 
-    private Logger logger = LoggerFactory.getLogger(PhotoCreationDateExtractor.class);
+    private static Logger logger = LoggerFactory.getLogger(PhotoCreationDateExtractor.class);
 
-    public Optional<LocalDateTime> readCreationTime(File file) {
+    public static Optional<LocalDateTime> readCreationTime(File file) {
         if (file.exists()) {
-            return tryReadMetadata(file).map(this::metadataToDate).map(this::dateToLocalDateTime);
+            return tryReadMetadata(file).map(PhotoCreationDateExtractor::metadataToDate).map(PhotoCreationDateExtractor::dateToLocalDateTime);
         }
         return Optional.empty();
     }
 
-    private Optional<Metadata> tryReadMetadata(File file) {
+    private static Optional<Metadata> tryReadMetadata(File file) {
         try {
             return Optional.of(ImageMetadataReader.readMetadata(file));
         } catch (ImageProcessingException | IOException e) {
@@ -38,11 +38,11 @@ public class PhotoCreationDateExtractor {
         }
     }
 
-    private LocalDateTime dateToLocalDateTime(Date d) {
+    private static LocalDateTime dateToLocalDateTime(Date d) {
         return LocalDateTime.ofInstant(d.toInstant(), ZoneId.systemDefault());
     }
 
-    private Date metadataToDate(Metadata m) {
+    private static Date metadataToDate(Metadata m) {
         return m.getFirstDirectoryOfType(ExifSubIFDDirectory.class).getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
     }
 }
