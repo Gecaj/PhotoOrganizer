@@ -38,11 +38,15 @@ public class PhotoCreationDateExtractor {
         }
     }
 
-    private static LocalDateTime dateToLocalDateTime(Date d) {
-        return LocalDateTime.ofInstant(d.toInstant(), ZoneId.systemDefault());
+    private static LocalDateTime dateToLocalDateTime(Optional<Date> d) {
+        return d.isPresent() ? LocalDateTime.ofInstant(d.get().toInstant(), ZoneId.systemDefault()) : null;
     }
 
-    private static Date metadataToDate(Metadata m) {
-        return m.getFirstDirectoryOfType(ExifSubIFDDirectory.class).getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+    private static Optional<Date> metadataToDate(Metadata m) {
+        ExifSubIFDDirectory exifSubIFDDirectory = m.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+        if (exifSubIFDDirectory == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
     }
 }

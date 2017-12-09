@@ -17,16 +17,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 public class PhotoOrganizerTest {
 
-    private final PhotoOrganizer fileOrganizer = new PhotoOrganizer();
     private Path newLocation = Paths.get("src/test/resources/output").toAbsolutePath();
+    private Path sourceDirectory = Paths.get("src/test/resources/photos/").toAbsolutePath();
+    private final PhotoOrganizer fileOrganizer = new PhotoOrganizer(sourceDirectory, newLocation);
 
     @Test
     public void shouldCopyAllFilesInDirectoryToProperLocation() throws IOException {
         // given
-        Path sourceDirectory = Paths.get("src/test/resources/photos/").toAbsolutePath();
-
         // when
-        fileOrganizer.copyFilesToNewLocation(sourceDirectory, newLocation);
+        fileOrganizer.copyFilesToNewLocation();
 
         // then
         assertThat(newLocation.toFile()).exists();

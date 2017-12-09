@@ -6,6 +6,7 @@ import com.cislo.photos.utils.TimeExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -17,31 +18,46 @@ import java.util.Optional;
 /**
  * Created by jcislo on 3/16/17.
  */
-public class PhotoOrganizer {
+public class PhotoOrganizer extends SwingWorker<Void, Long>{
 
+    private final Path sourcePath;
+    private final Path targetPath;
     private Logger logger = LoggerFactory.getLogger(PhotoOrganizer.class);
 
     private int movedPhotos = 0;
     private List<String> failedFileNames = new LinkedList<>();
+    private boolean finished;
+    private int filesCount;
 
-    public void copyFilesToNewLocation(Path sourceDirectory, Path targetRootDirectory) throws IOException {
-        createOutputDirectory(targetRootDirectory);
-        logger.info("Number of files to move: {}", FilesCounter.getFilesCount(sourceDirectory));
-        Files.walkFileTree(sourceDirectory, new SimpleFileVisitor<Path>(){
+    public PhotoOrganizer(Path sourcePath, Path targetPath) {
+        this.sourcePath = sourcePath;
+        this.targetPath = targetPath;
+    }
+
+    public void copyFilesToNewLocation() throws IOException {
+        createOutputDirectory(targetPath);
+        filesCount = FilesCounter.getFilesCount(sourcePath);
+        logger.info("Number of files to move: {}", filesCount);
+        Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 if (attrs.isRegularFile()) {
-                    copyFileToNewLocation(file, targetRootDirectory);
+                    copyFileToNewLocation(file, targetPath);
                 }
                 return FileVisitResult.CONTINUE;
             }
         });
+        finished = true;
         logger.info("Number of files moved: {}", movedPhotos);
         logger.info("Failed to move files: {}", failedFileNames);
     }
 
     public int getMovedPhotos() {
         return movedPhotos;
+    }
+
+    public boolean hasFinished() {
+        return finished;
     }
 
     public List<String> getFailedFileNames() {
@@ -57,7 +73,7 @@ public class PhotoOrganizer {
             Path outputDirectory = createOutputDirectory(targetRootDirectory, yearDirectory, monthDirectory);
             Path newFileLocation = outputDirectory.resolve(file.getFileName());
             Files.copy(file, newFileLocation, StandardCopyOption.REPLACE_EXISTING);
-            movedPhotos++;
+            setProgress((int)((++movedPhotos/(double)filesCount)*100));
         } else {
             failedFileNames.add(file.getFileName().toString());
         }
@@ -80,4 +96,15 @@ public class PhotoOrganizer {
             newLocation.toFile().mkdir();
         }
     }
+
+    @Override
+    protected Void doInBackground() throws Exception {
+        try {
+            copyFilesToNewLocation();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

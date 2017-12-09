@@ -1,9 +1,15 @@
 package com.cislo.photos;
 
+import com.cislo.photos.utils.FilesCounter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -13,10 +19,22 @@ public class App extends JPanel implements ActionListener {
     private final JButton sourceButton;
     private final JButton targetButton;
     private final JButton actionButton;
+    private final String progressString = "Copied %d / %d files.";
     private Path sourcePath;
     private Path targetPath;
     private static final JFrame frame = new JFrame("Photo organizer");
     private String infoMessage = "Done!\nCopied: %d files\nFailed to move following files: '%s'";
+    private Logger logger = LoggerFactory.getLogger(App.class);
+    private final JProgressBar jProgressBar;
+    private int filesCount;
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            //Turn off metal's use of bold fonts
+            UIManager.put("swing.boldMetal", Boolean.FALSE);
+            createAndShowGUI();
+        });
+    }
 
     public App() {
         super(new BorderLayout());
@@ -35,17 +53,18 @@ public class App extends JPanel implements ActionListener {
         buttonPanel.add(targetButton);
         buttonPanel.add(actionButton);
 
+        JPanel progressPanel = new JPanel();
+        jProgressBar = new JProgressBar();
+        progressPanel.add(jProgressBar);
         add(buttonPanel, BorderLayout.PAGE_START);
+        add(progressPanel, BorderLayout.PAGE_END);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source == actionButton) {
-            PhotoOrganizer photoOrganizer = new PhotoOrganizer();
-            tryCopyFilesToNewLocation(photoOrganizer);
-            JOptionPane.showMessageDialog(frame, String.format(infoMessage, photoOrganizer.getMovedPhotos(),
-                    photoOrganizer.getFailedFileNames()));
+            tryCopyFilesToNewLocation();
         } else {
             savePath(source);
         }
@@ -58,12 +77,21 @@ public class App extends JPanel implements ActionListener {
         }
     }
 
-    private void tryCopyFilesToNewLocation(PhotoOrganizer photoOrganizer) {
+    private void tryCopyFilesToNewLocation() {
         try {
-            System.out.println("sourcePath = " + sourcePath);
-            System.out.println("targetPath = " + targetPath);
-            photoOrganizer.copyFilesToNewLocation(sourcePath, targetPath);
-        } catch (IOException e1) {
+            targetButton.setEnabled(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            logger.info("sourcePath = " + sourcePath);
+            logger.info("targetPath = " + targetPath);
+            PhotoOrganizer photoOrganizer = new PhotoOrganizer(sourcePath, targetPath);
+            jProgressBar.setString(String.format(progressString, 0, filesCount));
+            jProgressBar.setStringPainted(true);
+            photoOrganizer.addPropertyChangeListener(new ProgressListener(photoOrganizer));
+            photoOrganizer.execute();
+//            JOptionPane.showMessageDialog(frame, String.format(infoMessage, photoOrganizer.getMovedPhotos(),
+//                    photoOrganizer.getFailedFileNames()));
+        } catch (Exception e1) {
+            logger.error(e1.getMessage());
             e1.printStackTrace();
             System.exit(1);
         }
@@ -75,6 +103,11 @@ public class App extends JPanel implements ActionListener {
             Path path = fileChooser.getSelectedFile().toPath().toAbsolutePath();
             if (source == sourceButton) {
                 sourcePath = path;
+                try {
+                    filesCount = FilesCounter.getFilesCount(sourcePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else if (source == targetButton) {
                 targetPath = path;
             }
@@ -95,11 +128,32 @@ public class App extends JPanel implements ActionListener {
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            //Turn off metal's use of bold fonts
-            UIManager.put("swing.boldMetal", Boolean.FALSE);
-            createAndShowGUI();
-        });
+    class ProgressListener implements PropertyChangeListener {
+        private final PhotoOrganizer photoOrganizer;
+
+        public ProgressListener(PhotoOrganizer photoOrganizer) {
+            this.photoOrganizer = photoOrganizer;
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            String propertyName = evt.getPropertyName();
+            System.out.println("propertyName = " + propertyName);
+            Object newValue = evt.getNewValue();
+            System.out.println("newValue = " + newValue);
+            if (!photoOrganizer.hasFinished()) {
+                jProgressBar.setValue(photoOrganizer.getProgress());
+                jProgressBar.setString(String.format(progressString, photoOrganizer.getMovedPhotos(), filesCount));
+            } else {
+                JOptionPane.showMessageDialog(frame, String.format(infoMessage, photoOrganizer.getMovedPhotos(),
+                        photoOrganizer.getFailedFileNames()));
+                setCursor(null);
+            }
+            if (evt.getPropertyName().equals("state") && evt.getNewValue() == SwingWorker.StateValue.DONE) {
+                setCursor(null);
+            }
+        }
+
+
     }
 }
