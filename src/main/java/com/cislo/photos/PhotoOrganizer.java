@@ -26,7 +26,6 @@ public class PhotoOrganizer extends SwingWorker<Void, Long>{
 
     private int movedPhotos = 0;
     private List<String> failedFileNames = new LinkedList<>();
-    private boolean finished;
     private int filesCount;
 
     public PhotoOrganizer(Path sourcePath, Path targetPath) {
@@ -47,17 +46,12 @@ public class PhotoOrganizer extends SwingWorker<Void, Long>{
                 return FileVisitResult.CONTINUE;
             }
         });
-        finished = true;
         logger.info("Number of files moved: {}", movedPhotos);
         logger.info("Failed to move files: {}", failedFileNames);
     }
 
     public int getMovedPhotos() {
         return movedPhotos;
-    }
-
-    public boolean hasFinished() {
-        return finished;
     }
 
     public List<String> getFailedFileNames() {
@@ -99,12 +93,7 @@ public class PhotoOrganizer extends SwingWorker<Void, Long>{
 
     @Override
     protected Void doInBackground() throws Exception {
-        try {
-            copyFilesToNewLocation();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        copyFilesToNewLocation();
         return null;
     }
-
 }

@@ -88,8 +88,6 @@ public class App extends JPanel implements ActionListener {
             jProgressBar.setStringPainted(true);
             photoOrganizer.addPropertyChangeListener(new ProgressListener(photoOrganizer));
             photoOrganizer.execute();
-//            JOptionPane.showMessageDialog(frame, String.format(infoMessage, photoOrganizer.getMovedPhotos(),
-//                    photoOrganizer.getFailedFileNames()));
         } catch (Exception e1) {
             logger.error(e1.getMessage());
             e1.printStackTrace();
@@ -137,19 +135,12 @@ public class App extends JPanel implements ActionListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            String propertyName = evt.getPropertyName();
-            System.out.println("propertyName = " + propertyName);
-            Object newValue = evt.getNewValue();
-            System.out.println("newValue = " + newValue);
-            if (!photoOrganizer.hasFinished()) {
+            if (!photoOrganizer.isDone()) {
                 jProgressBar.setValue(photoOrganizer.getProgress());
                 jProgressBar.setString(String.format(progressString, photoOrganizer.getMovedPhotos(), filesCount));
             } else {
                 JOptionPane.showMessageDialog(frame, String.format(infoMessage, photoOrganizer.getMovedPhotos(),
                         photoOrganizer.getFailedFileNames()));
-                setCursor(null);
-            }
-            if (evt.getPropertyName().equals("state") && evt.getNewValue() == SwingWorker.StateValue.DONE) {
                 setCursor(null);
             }
         }

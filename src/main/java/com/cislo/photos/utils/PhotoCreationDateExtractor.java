@@ -23,7 +23,9 @@ public class PhotoCreationDateExtractor {
 
     public static Optional<LocalDateTime> readCreationTime(File file) {
         if (file.exists()) {
-            return tryReadMetadata(file).map(PhotoCreationDateExtractor::metadataToDate).map(PhotoCreationDateExtractor::dateToLocalDateTime);
+            return tryReadMetadata(file).
+                    map(PhotoCreationDateExtractor::metadataToDate).
+                    map(PhotoCreationDateExtractor::dateToLocalDateTime);
         }
         return Optional.empty();
     }
@@ -38,15 +40,15 @@ public class PhotoCreationDateExtractor {
         }
     }
 
-    private static LocalDateTime dateToLocalDateTime(Optional<Date> d) {
-        return d.isPresent() ? LocalDateTime.ofInstant(d.get().toInstant(), ZoneId.systemDefault()) : null;
+    private static LocalDateTime dateToLocalDateTime(Date d) {
+        return LocalDateTime.ofInstant(d.toInstant(), ZoneId.systemDefault());
     }
 
-    private static Optional<Date> metadataToDate(Metadata m) {
+    private static Date metadataToDate(Metadata m) {
         ExifSubIFDDirectory exifSubIFDDirectory = m.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
         if (exifSubIFDDirectory == null) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.ofNullable(exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
+        return exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
     }
 }
