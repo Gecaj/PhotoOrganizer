@@ -22,18 +22,20 @@ class PhotoOrganizer extends SwingWorker<Void, Long>{
 
     private final Path sourcePath;
     private final Path targetPath;
+    private final FileOperation fileOperation;
     private Logger logger = LoggerFactory.getLogger(PhotoOrganizer.class);
 
     private int movedPhotos = 0;
     private List<String> failedFileNames = new LinkedList<>();
     private int filesCount;
 
-    PhotoOrganizer(Path sourcePath, Path targetPath) {
+    PhotoOrganizer(Path sourcePath, Path targetPath, FileOperation fileOperation) {
         this.sourcePath = sourcePath;
         this.targetPath = targetPath;
+        this.fileOperation = fileOperation;
     }
 
-    void copyFilesToNewLocation() throws IOException {
+    void organizeFiles() throws IOException {
         createOutputDirectory(targetPath);
         filesCount = FilesCounter.getFilesCount(sourcePath);
         logger.info("Number of files to move: {}", filesCount);
@@ -66,7 +68,7 @@ class PhotoOrganizer extends SwingWorker<Void, Long>{
             Path monthDirectory = Paths.get(TimeExtractor.readCreationMonth(creationTimeOptional.get()));
             Path outputDirectory = createOutputDirectory(targetRootDirectory, yearDirectory, monthDirectory);
             Path newFileLocation = outputDirectory.resolve(file.getFileName());
-            Files.move(file, newFileLocation, StandardCopyOption.REPLACE_EXISTING);
+            fileOperation.apply(file, newFileLocation);
             setProgress((int)((++movedPhotos/(double)filesCount)*100));
         } else {
             logger.info("Failed to move file: {}", file.toString());
@@ -94,7 +96,7 @@ class PhotoOrganizer extends SwingWorker<Void, Long>{
 
     @Override
     protected Void doInBackground() throws Exception {
-        copyFilesToNewLocation();
+        organizeFiles();
         return null;
     }
 }

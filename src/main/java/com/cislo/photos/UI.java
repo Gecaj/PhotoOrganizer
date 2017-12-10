@@ -89,7 +89,7 @@ class UI extends JPanel implements ActionListener {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             logger.info("sourcePath = " + sourcePath);
             logger.info("targetPath = " + targetPath);
-            PhotoOrganizer photoOrganizer = new PhotoOrganizer(sourcePath, targetPath);
+            PhotoOrganizer photoOrganizer = new PhotoOrganizer(sourcePath, targetPath, FileOperation.MOVE);
             jProgressBar.setString(String.format(progressString, 0, filesCount));
             jProgressBar.setStringPainted(true);
             photoOrganizer.addPropertyChangeListener(new ProgressListener(photoOrganizer));

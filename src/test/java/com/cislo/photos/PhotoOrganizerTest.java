@@ -19,13 +19,13 @@ public class PhotoOrganizerTest {
 
     private Path newLocation = Paths.get("src/test/resources/output").toAbsolutePath();
     private Path sourceDirectory = Paths.get("src/test/resources/photos/").toAbsolutePath();
-    private final PhotoOrganizer fileOrganizer = new PhotoOrganizer(sourceDirectory, newLocation);
+    private final PhotoOrganizer fileOrganizer = new PhotoOrganizer(sourceDirectory, newLocation, FileOperation.COPY);
 
     @Test
     public void shouldCopyAllFilesInDirectoryToProperLocation() throws IOException {
         // given
         // when
-        fileOrganizer.copyFilesToNewLocation();
+        fileOrganizer.organizeFiles();
 
         // then
         assertThat(newLocation.toFile()).exists();
