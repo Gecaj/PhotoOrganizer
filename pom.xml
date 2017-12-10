@@ -71,7 +71,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.cislo.photos.App</mainClass>
+                            <mainClass>com.cislo.photos.UI</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

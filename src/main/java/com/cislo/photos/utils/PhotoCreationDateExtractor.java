@@ -14,9 +14,6 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
-/**
- * Created by jcislo on 3/17/17.
- */
 public class PhotoCreationDateExtractor {
 
     private static Logger logger = LoggerFactory.getLogger(PhotoCreationDateExtractor.class);

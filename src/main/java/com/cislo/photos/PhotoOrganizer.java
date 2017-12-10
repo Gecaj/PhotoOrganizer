@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * Created by jcislo on 3/16/17.
  */
-public class PhotoOrganizer extends SwingWorker<Void, Long>{
+class PhotoOrganizer extends SwingWorker<Void, Long>{
 
     private final Path sourcePath;
     private final Path targetPath;
@@ -28,12 +28,12 @@ public class PhotoOrganizer extends SwingWorker<Void, Long>{
     private List<String> failedFileNames = new LinkedList<>();
     private int filesCount;
 
-    public PhotoOrganizer(Path sourcePath, Path targetPath) {
+    PhotoOrganizer(Path sourcePath, Path targetPath) {
         this.sourcePath = sourcePath;
         this.targetPath = targetPath;
     }
 
-    public void copyFilesToNewLocation() throws IOException {
+    void copyFilesToNewLocation() throws IOException {
         createOutputDirectory(targetPath);
         filesCount = FilesCounter.getFilesCount(sourcePath);
         logger.info("Number of files to move: {}", filesCount);
@@ -50,11 +50,11 @@ public class PhotoOrganizer extends SwingWorker<Void, Long>{
         logger.info("Failed to move files: {}", failedFileNames);
     }
 
-    public int getMovedPhotos() {
+    int getMovedPhotos() {
         return movedPhotos;
     }
 
-    public List<String> getFailedFileNames() {
+    List<String> getFailedFileNames() {
         return failedFileNames;
     }
 
@@ -66,9 +66,10 @@ public class PhotoOrganizer extends SwingWorker<Void, Long>{
             Path monthDirectory = Paths.get(TimeExtractor.readCreationMonth(creationTimeOptional.get()));
             Path outputDirectory = createOutputDirectory(targetRootDirectory, yearDirectory, monthDirectory);
             Path newFileLocation = outputDirectory.resolve(file.getFileName());
-            Files.copy(file, newFileLocation, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(file, newFileLocation, StandardCopyOption.REPLACE_EXISTING);
             setProgress((int)((++movedPhotos/(double)filesCount)*100));
         } else {
+            logger.info("Failed to move file: {}", file.toString());
             failedFileNames.add(file.getFileName().toString());
         }
     }

@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
-/**
- * Created by jcislo on 12/7/17.
- */
 public class FilesCounter {
 
     public static int getFilesCount(Path rootDirectory) throws IOException {
@@ -26,7 +23,7 @@ public class FilesCounter {
             return FileVisitResult.CONTINUE;
         }
 
-        public int getFilesCount() {
+        int getFilesCount() {
             return filesCount;
         }
     }

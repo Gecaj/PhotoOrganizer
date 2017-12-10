@@ -5,10 +5,6 @@ import java.time.temporal.ChronoField;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by jcislo on 3/16/17.
- */
-
 public class TimeExtractor {
     private static final Map<Integer, String> INT_TO_MONTH = new HashMap<>();
     static {
